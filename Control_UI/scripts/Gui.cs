@@ -6,6 +6,7 @@ public class Gui : MarginContainer
 	private Label _numberLabel;
 	private TextureProgress _bar;
 	private Tween _tween;
+	private float _animatedHealth;
 
 	public override void _Ready()
 	{
@@ -14,6 +15,7 @@ public class Gui : MarginContainer
 		_numberLabel = (Label) GetNode("Bars/LifeBar/Count/Background/Number");
 		var player = (Player) GetNode("../Characters/Player");
 			_bar.MaxValue = player.MaxHealth;
+		_animatedHealth = player.MaxHealth;
 	}
 private void _on_Player_HealthChanged(int health)
 {
@@ -24,6 +26,36 @@ public void UpdateHealth(int health)
 {
 	_numberLabel.Text = health.ToString();
 	_bar.Value = health;
+	_tween.InterpolateProperty(this, "_animatedHealth", _animatedHealth, health, 0.6f, Tween.TransitionType.Linear,
+		Tween.EaseType.In);
+	if(!_tween.IsActive())
+	{
+		_tween.Start();
+	}
+}	
+public override void _Process(float delta)
+{
+	var roundValue = Mathf.Round(_animatedHealth);
+	_numberLabel.Text = roundValue.ToString();
+	_bar.Value = roundValue;
+}
+	
+private void _on_Player_Died()
+{
+	// Replace with function body.
+}
+
+public void OnPlayerDied()
+{
+	var startColor = new Color(1.0f, 1.0f, 1.0f);
+	var endColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+	
+	_tween.InterpolateProperty(this, "modulate", startColor, endColor, 1.0f, Tween.TransitionType.Linear,
+		Tween.EaseType.In);
+
 }	
 	
 }
+
+
+
